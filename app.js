@@ -2,9 +2,11 @@ require("dotenv").config();
 
 const express = require("express");
 const ejs = require("ejs");
-const bodyParser	= require("body-parser");
+const bodyParser = require("body-parser");
 const request = require("request");
-const app	= express();
+const app = express();
+
+const config = require('./config')
 
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
@@ -30,10 +32,10 @@ app.get("/search", (req, res)=>{
 		// console.log(query);
 		let url;
 		if(searchQueryType === "i" || searchQueryType === "t"){
-			url = "http://www.omdbapi.com/?" + req._parsedUrl.query + "&plot=full&apikey=" + process.env.OMDB_API_KEY;
+			url = "http://www.omdbapi.com/?" + req._parsedUrl.query + "&plot=full&apikey=" + config.omdbApiKey;
 		}else{
 			var search = searchQueryType + "=" + searchQuery + "&y=" + yearQuery;
-			url = "http://www.omdbapi.com/?" + search + "&page=" + pageNo + "&apikey=" + process.env.OMDB_API_KEY;
+			url = "http://www.omdbapi.com/?" + search + "&page=" + pageNo + "&apikey=" + config.omdbApiKey;
 		}
 		// console.log(url);
 		let msg = "";
@@ -73,7 +75,7 @@ app.get("/search", (req, res)=>{
 
 //show route
 app.get("/search/:imdbID", (req, res)=>{
-	let url = "http://www.omdbapi.com/?i=" + req.params.imdbID + "&plot=full&apikey=" + process.env.OMDB_API_KEY;
+	let url = "http://www.omdbapi.com/?i=" + req.params.imdbID + "&plot=full&apikey=" + config.omdbApiKey;
 	// console.log(url);
 	request(url, (error, response, body)=>{
 		if(!error && response.statusCode == 200){
@@ -102,7 +104,16 @@ app.get("/*", (req, res)=>{
 	res.redirect("/");
 });
 
+const validateConfig = () => {
+	if(!config.omdbApiKey) {
+		throw new Error("OMDB api key is required");
+	}
+}
+
 app.listen(process.env.PORT || 3000, ()=>{
+
+	validateConfig();
+
 	console.log("Movie App has started!!");
 	console.log("Server is listening at 'localhost:3000'");
 });
