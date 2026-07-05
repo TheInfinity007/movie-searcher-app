@@ -37,8 +37,9 @@ app.get("/search", (req, res)=>{
 		}
 		// console.log(url);
 		let msg = "";
+
 		request(url, (error, response, body)=>{
-			if(!error && response.statusCode == 200){
+			if(response.statusCode == 200){
 				var data = JSON.parse(body);
 				// console.log(response.statusCode);
 				if((query.t || query.i) && data.Response == "True"){
@@ -59,7 +60,7 @@ app.get("/search", (req, res)=>{
 					res.redirect("back");
 				}
 			}else{
-				console.log(error);
+				console.log("error response", body);
 				// msg = "Error Occured! Please Try again";
 				res.redirect("back");
 			}
